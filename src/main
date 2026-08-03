@@ -1,0 +1,72 @@
+import cv2 as cv
+import numpy as np
+import sys
+import matplotlib.pyplot as plt
+import yunet
+import os
+import sys
+
+def draw_faces(frame, faces):
+    for face in faces:
+        #faces is a 1D array with 15 elements, the first 4 elements are the bounding box coordinates (x, y, w, h), and the last element is the confidence score.
+        bbox = face[0:4].astype(np.int32)
+        #bounding box
+        cv.rectangle(frame, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (0, 255, 0), 2)
+        #confidence score
+        cv.putText(frame, f"{face[14]:.2f}", (bbox[0], bbox[1] - 10), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+#Initialise webcam as input source
+s = 0
+if len(sys.argv) > 1:
+    s = sys.argv[1]
+source = cv.VideoCapture(s)
+
+#Initialise output video window
+win_name = "webcam"
+cv.namedWindow(win_name, cv.WINDOW_NORMAL)
+
+#Load face detection YuNet model using the yunet.YuNet wrapper class
+net = yunet.YuNet("models/face_detection_yunet_2026may.onnx")
+
+#Initialise VideoWriter object
+name = 'face_detection_test'
+while os.path.exists("video/" + name + str(s) + '.mp4'):
+    s += 1
+mp4VideoWriter = cv.VideoWriter("video/" + name + str(s) + '.mp4', cv.VideoWriter_fourcc(*'mp4v'), 30, (640, 480))
+
+#Preprocessing (provides expected input size to the model). This is done by reading a single valid frame from the webcam and using its dimensions to set the input size of the model.
+if not source.isOpened():
+        print("Cannot open camera")
+        exit()
+ret, frame = source.read()
+if ret:
+    w, h = frame.shape[1], frame.shape[0]
+net.setInputSize([w, h])
+
+#Processing loop
+while cv.waitKey(1) != 27:
+    #Read frame and validate
+    ret, frame = source.read()
+    if not ret:
+        print("Can't receive frame. Exiting ...")
+        break
+
+    #Mirror the frame for convenience
+    frame = cv.flip(frame, 1)
+
+    #Run face detection
+    faces = net.infer(frame)
+
+    #Draw annotations
+    draw_faces(frame, faces)
+
+    #Display frame
+    cv.imshow(win_name, frame)
+
+    #Save frame
+    mp4VideoWriter.write(frame)
+
+#Release resources
+source.release()
+mp4VideoWriter.release()
+cv.destroyWindow(win_name)
