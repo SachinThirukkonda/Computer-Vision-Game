@@ -6,6 +6,7 @@ import yunet
 import os
 import sys
 
+#helper function to draw bounding boxes and confidence scores on the frame
 def draw_faces(frame, faces):
     for face in faces:
         #faces is a 1D array with 15 elements, the first 4 elements are the bounding box coordinates (x, y, w, h), and the last element is the confidence score.
@@ -25,14 +26,14 @@ source = cv.VideoCapture(s)
 win_name = "webcam"
 cv.namedWindow(win_name, cv.WINDOW_NORMAL)
 
-#Load face detection YuNet model using the yunet.YuNet wrapper class
-net = yunet.YuNet("models/face_detection_yunet_2026may.onnx")
-
 #Initialise VideoWriter object
 name = 'face_detection_test'
 while os.path.exists("video/" + name + str(s) + '.mp4'):
     s += 1
 mp4VideoWriter = cv.VideoWriter("video/" + name + str(s) + '.mp4', cv.VideoWriter_fourcc(*'mp4v'), 30, (640, 480))
+
+#Load face detection YuNet model using the yunet.YuNet wrapper class
+net = yunet.YuNet("models/face_detection_yunet_2026may.onnx")
 
 #Preprocessing (provides expected input size to the model). This is done by reading a single valid frame from the webcam and using its dimensions to set the input size of the model.
 if not source.isOpened():
