@@ -18,7 +18,7 @@ The aim is to produce suitably functioning programs for each of these key capabi
 ---
 
 <details>
-<summary><h2>Face Detection</h2></summary>
+<summary><h1>Face Detection</h1></summary>
 
 ## YuNet
 
