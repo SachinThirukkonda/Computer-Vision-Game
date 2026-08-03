@@ -17,7 +17,8 @@ The aim is to produce suitably functioning programs for each of these key capabi
 
 ---
 
-# Face Detection
+<details>
+<summary><h2>Face Detection</h2></summary>
 
 ## YuNet
 
@@ -85,4 +86,6 @@ Release resources:
 - Release webcam input.
 - Release `VideoWriter`.
 - Close display windows.
+
+</details>
 
